@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { habit_tracker_app_backend } from 'declarations/habit-tracker-app-backend';
+import {Navigate, HashRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "./component/Login";
+import Register from "./component/Register";
+import { HabitProvider } from "./context/HabitProvider";
+import MainPage from "./pages/MainPage";
+import { useEffect, useState } from "react";
 
-function App() {
-  const [greeting, setGreeting] = useState('');
+const App = () => {
+  const [isAuth, setIsAuth] = useState(false);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    habit_tracker_app_backend.greet(name).then((greeting) => {
-      setGreeting(greeting);
-    });
-    return false;
-  }
+  useEffect(() => {
+    // Check local storage on app load for auth status
+    const storedAuth = localStorage.getItem('isAuth') === 'true';
+    setIsAuth(storedAuth);
+  }, []);
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
-    </main>
+   <HabitProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={isAuth ? <MainPage setIsAuth={setIsAuth} /> : <Navigate to="/login" />} />
+        <Route path="/login" element={<Login setIsAuth={setIsAuth} />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </Router>
+    </HabitProvider>
+    
   );
-}
+};
 
 export default App;
